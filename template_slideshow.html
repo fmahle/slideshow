@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Slideshow with Animation</title>
+        <style>
+            body {
+                margin: 0;
+                cursor: none;
+                user-select: none;
+                background-color: black;
+            }
+
+            /* Style for the slideshow container */
+            .slideshow-container {
+                position: absolute;
+                width: 100%;
+                height: 100%;
+                overflow: hidden;
+            }
+
+            /* Style for the slideshow images */
+            .slideshow-container img {
+                width: 100%;
+                height: auto;
+                position: absolute;
+                top: 0;
+                left: -100%;
+                width: 100%;
+                max-width: 100%;
+                max-height: 100%;
+                margin: auto;
+                object-fit: contain;
+                animation-duration: 1s;
+                animation-timing-function: ease-out;
+                animation-fill-mode: forwards;
+            }
+
+            /* Style for the previous and next buttons */
+            .prev, .next {
+                position: absolute;
+                top: 50%;
+                width: auto;
+                padding: 16px;
+                margin-top: -22px;
+                color: white;
+                font-weight: bold;
+                font-size: 18px;
+                transition: 0.6s ease;
+                user-select: none;
+            }
+
+            /* Position the previous button to the left */
+            .prev {
+                left: 0;
+            }
+
+            /* Position the next button to the right */
+            .next {
+                right: 0;
+            }
+
+            /* Class to trigger the slideIn animation */
+            .animate-inl {
+                animation-name: slideInl;
+            }
+
+            /* Class to trigger the slideOut animation */
+            .animate-outl {
+                animation-name: slideOutl;
+            }
+
+            /* Keyframes for the slideIn animation */
+            @keyframes slideInl {
+                from {
+                    left: 100%;
+                }
+                to {
+                    left: 0;
+                }
+            }
+
+            /* Keyframes for the slideOut animation */
+            @keyframes slideOutl {
+                from {
+                    left: 0;
+                }
+                to {
+                    left: -100%;
+                }
+            }
+
+            /* Class to trigger the slideIn animation */
+            .animate-inr {
+                animation-name: slideInr;
+            }
+
+            /* Class to trigger the slideOut animation */
+            .animate-outr {
+                animation-name: slideOutr;
+            }
+
+            /* Keyframes for the slideIn animation */
+            @keyframes slideInr {
+                from {
+                    left: -100%;
+                }
+                to {
+                    left: 0;
+                }
+            }
+
+            /* Keyframes for the slideOut animation */
+            @keyframes slideOutr {
+                from {
+                    left: 0;
+                }
+                to {
+                    left: 100%;
+                }
+            }
+            #clock {
+                position: fixed;
+                bottom: 0;
+                right: 0;
+                border-radius: 40% 0% 0% 0%;
+                background-color: rgba(255, 255, 255, 0.4);
+                color: white;
+                padding: 1%;
+                font-size: 110px;
+                font-family: Roboto, sans-serif;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="slideshow-container">
+            <!-- [INSERT IMAGES] -->
+        </div>
+        <div id="clock">
+            <k id="date" style="font-size: 60px;">/././</k>
+            <br/>
+            <k id="time">/:/</k>
+        </div>
+        <a class="prev" onclick="move_slides(-1)">&#10094;</a>
+        <a class="next" onclick="move_slides(1)">&#10095;</a>
+        <script>
+            // Set the index to 1 (first image)
+            // Variables to keep track of swipe start and end coordinates
+            let swipeStartX = 0;
+            let swipeEndX = 0;
+            var slideIndex = 0;
+            var my_interval = null;
+            var slides = document.getElementsByTagName("img");
+            move_slides(1);
+
+            // Change the slide by the specified amount
+            function move_slides(n) {
+                var previous_slide = slides[slideIndex];
+                slideIndex += n;
+
+                // If we go past the last image, reset to the first
+                if (slideIndex > slides.length - 1) {
+                    slideIndex = 0;
+                }
+
+                // If we go past the first image, go to the last
+                if (slideIndex < 0) {
+                    slideIndex = slides.length - 1;
+                }
+
+                var current_slide = slides[slideIndex];
+
+                previous_slide.classList.remove("animate-inl");
+                previous_slide.classList.remove("animate-inr");
+                if (n == -1) {
+                    previous_slide.classList.add("animate-out" + "r");
+                    current_slide.classList.add("animate-in" + "r");
+                }
+                else {
+                    previous_slide.classList.add("animate-out" + "l");
+                    current_slide.classList.add("animate-in" + "l");
+                }
+
+                setTimeout(() => {
+                    //previous_slide.style.display = "none";
+                    previous_slide.classList.remove("animate-outl");
+                    previous_slide.classList.remove("animate-outr");
+                }, 1000);
+
+                clearInterval(my_interval);
+                my_interval = setInterval(move_slides, 10000, 1);
+            }
+
+            setInterval(() => {
+                let now = new Date();
+                document.getElementById('date').innerText = now.toLocaleDateString("de-DE");
+                document.getElementById('time').innerText =
+                    now.getHours().toString().padStart(2, '0') + ":" +
+                    now.getMinutes().toString().padStart(2, '0');
+            }, 1000);
+
+
+            // Add event listener for touchstart and mousedown events
+            document.addEventListener('touchstart', handleSwipeStart);
+            document.addEventListener('mousedown', handleSwipeStart);
+
+            function handleSwipeStart(event) {
+            // Check if the event target is an image
+            if (event.target.tagName.toLowerCase() === 'img') {
+                // Prevent the default behavior of the browser
+                event.preventDefault();
+            }
+            // Record the starting position of the swipe
+            swipeStartX = event.clientX || event.touches[0].clientX;
+            }
+
+            // Add event listener for touchend and mouseup events
+            document.addEventListener('touchend', handleSwipeEnd);
+            document.addEventListener('mouseup', handleSwipeEnd);
+
+            function handleSwipeEnd(event) {
+            // Check if the event target is an image
+            if (event.target.tagName.toLowerCase() === 'img') {
+                // Prevent the default behavior of the browser
+                event.preventDefault();
+            }
+            // Record the ending position of the swipe
+            swipeEndX = event.clientX || event.changedTouches[0].clientX;
+
+            // Calculate the distance swiped
+            let swipeDistance = swipeEndX - swipeStartX;
+
+            // Determine if the swipe was left or right
+            if (swipeDistance > 0) {
+                move_slides(-1);
+            } else if (swipeDistance < 0) {
+                move_slides(1);
+            }
+            }
+
+            // Add event listener for touchmove and mousemove events
+            document.addEventListener('touchmove', function(event) {
+            // Check if the event target is an image
+            if (event.target.tagName.toLowerCase() === 'img') {
+                // Prevent the default behavior of the browser
+                event.preventDefault();
+            }
+            });
+            document.addEventListener('mousemove', function(event) {
+            // Check if the event target is an image
+            if (event.target.tagName.toLowerCase() === 'img') {
+                // Prevent the default behavior of the browser
+                event.preventDefault();
+            }
+            });
+        </script>
+    </body>
+</html>
